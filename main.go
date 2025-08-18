@@ -1,8 +1,21 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"net/http"
+)
+
+type HealthResponse struct {
+	Status string `json:"status"`
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	response := HealthResponse{Status: "UP"}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
 
 func main() {
-	fmt.Println("Hello, World!")
-	fmt.Println("This is a simple Go program.")
+	http.HandleFunc("/health", healthHandler)
+	http.ListenAndServe(":8080", nil)
 }
