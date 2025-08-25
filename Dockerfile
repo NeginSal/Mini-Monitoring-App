@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM golang:1.22 AS builder
+FROM golang:1.24-alpine AS builder
 
 # Set the working directory
 WORKDIR /app
@@ -15,7 +15,7 @@ COPY . .
 RUN go build -o mini-monitoring-app
 
 # Stage 2: Run (lighter image)
-FROM debian:bullseye-slim
+FROM alpine:latest
 
 # Set the working directory
 WORKDIR /app
