@@ -1,39 +1,55 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-type HealthResponse struct {
-	Status string `json:"status"`
+var (
+	healthRequests = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "health_requests_total",
+			Help: "Total number of health check requests",
+		},
+	)
+
+	responseLatency = prometheus.NewHistogram(
+		prometheus.HistogramOpts{
+			Name:    "response_latency_seconds",
+			Help:    "Response latency in seconds",
+			Buckets: prometheus.LinearBuckets(0.01, 0.02, 10), // 10 buckets, each 0.02s wide, starting from 0.01s
+		},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(healthRequests)
+	prometheus.MustRegister(responseLatency)
 }
 
-var healthRequests = prometheus.NewCounter(
-	prometheus.CounterOpts{
-		Name: "health_requests_total",
-		Help: "Total number of requests to the /health endpoint",
-	},
-)
-
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-
+	start := time.Now()
 	healthRequests.Inc()
 
-	response := HealthResponse{Status: "UP"}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	delay := time.Duration(rand.Intn(200)) * time.Millisecond
+	time.Sleep(delay)
+
+	fmt.Fprint(w, `{"status":"ok"}`)
+
+	duration := time.Since(start).Seconds()
+	responseLatency.Observe(duration)
 }
 
 func main() {
 
-	prometheus.MustRegister(healthRequests)
-
 	http.HandleFunc("/health", healthHandler)
 	http.Handle("/metrics", promhttp.Handler())
 
+	fmt.Println("Starting server on :8080")
 	http.ListenAndServe(":8080", nil)
 }
