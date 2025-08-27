@@ -1,0 +1,33 @@
+{
+  "id": null,
+  "title": "Mini Monitoring App Dashboard",
+  "tags": ["prometheus", "go", "monitoring"],
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Health Requests",
+      "targets": [
+        {
+          "expr": "health_requests_total",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 4 }
+    },
+    {
+      "type": "graph",
+      "title": "P95 Response Latency",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(response_latency_seconds_bucket[1m])) by (le))",
+          "refId": "B"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 }
+    }
+  ]
+}
