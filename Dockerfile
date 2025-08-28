@@ -1,30 +1,27 @@
-# Stage 1: Build
-FROM golang:1.24-alpine AS builder
-
-# Set the working directory
+# Stage: build
+FROM golang:1.24.5 AS builder
 WORKDIR /app
 
-# Copy module files and download dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy the rest of the application files
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w" -o /app/mini-monitoring-app
 
-# Build the binary
-RUN go build -o mini-monitoring-app
+# Stage: runtime (alpine)
+FROM alpine:3.19
 
-# Stage 2: Run (lighter image)
-FROM alpine:latest
-
-# Set the working directory
 WORKDIR /app
 
-# Copy the binary from the build stage
-COPY --from=builder /app/mini-monitoring-app .
+# copy binary from builder
+COPY --from=builder /app/mini-monitoring-app /app/mini-monitoring-app
 
-# Expose the application port
+# (optional) run as non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN chown appuser:appgroup /app/mini-monitoring-app
+USER appuser
+
 EXPOSE 8080
 
-# Run the application
-CMD ["./mini-monitoring-app"]
+ENTRYPOINT ["/app/mini-monitoring-app"]
