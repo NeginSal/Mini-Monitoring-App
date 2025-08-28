@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    name: Build Go Application
     runs-on: ubuntu-latest
 
     steps:
@@ -38,8 +39,10 @@ jobs:
         run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o mini-monitoring-app
 
   docker:
+    name: Build and Push Docker Image
     needs: build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -57,13 +60,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
+          platforms: linux/amd64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/mini-monitoring-app:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/mini-monitoring-app:${{ github.sha }}
-          platforms: linux/amd64
