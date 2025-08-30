@@ -41,4 +41,29 @@ cd mini-monitoring-app‍‍‍
 Now the service is available at:
 ```http://localhost:8080/health```
 
+## 🌐 Services
+
+Go App → ```http://localhost:8080```
+
+Prometheus →  ```http://localhost:9090```
+
+Grafana →  ```http://localhost:3000```
+ (default user/pass: admin / admin)
+
+
+## 🐳 DockerHub Image
+You can pull and run the app directly from DockerHub:
+```
+docker pull negin007/mini-monitoring-app:latest
+docker run -p 8080:8080 negin007/mini-monitoring-app:latest
+```
+## 📊 Monitoring Setup
+- ```Prometheus``` scrapes metrics from the Go application.
+- ```Grafana``` provides dashboards and visualization.
+
+## 📝 License
+
+This project is for educational and portfolio purposes. Feel free to fork and adapt.
+
+
 
