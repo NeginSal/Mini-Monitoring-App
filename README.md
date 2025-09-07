@@ -65,5 +65,8 @@ docker run -p 8080:8080 negin007/mini-monitoring-app:latest
 
 This project is for educational and portfolio purposes. Feel free to fork and adapt.
 
+## 📖 Learn More
+You can learn more about this project in this article [mini-monitoring-app](https://dev.to/negin/mini-monitoring-app-in-go-with-prometheus-grafana-cicd-f50)
+
 
 
